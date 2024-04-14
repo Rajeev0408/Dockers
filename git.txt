@@ -1,0 +1,70 @@
+pipeline { 
+
+    environment { 
+
+        registry = "https://github.com/Rajeev0408/Dockers.git" 
+
+        registryCredential = 'dockerhub_id' 
+
+        dockerImage = '' 
+
+    }
+
+    agent any 
+
+    stages { 
+
+        stage('Cloning our Git') { 
+
+            steps { 
+
+                git 'https://github.com/Rajeev0408/Dockers.git' 
+
+            }
+
+        } 
+
+        stage('Building our image') { 
+
+            steps { 
+
+                script { 
+
+                    dockerImage = docker.build registry + ":1" 
+
+                }
+
+            } 
+
+        }
+
+        stage('Deploy our image') { 
+
+            steps { 
+
+                script { 
+
+                    docker.withRegistry( '', registryCredential ) { 
+
+                        dockerImage.push() 
+
+                    }
+
+                } 
+        }
+
+        } 
+
+        stage('Cleaning up') { 
+
+            steps { 
+
+                sh "docker rmi $registry:"1" 
+
+            }
+
+        } 
+
+    }
+
+}
